@@ -6,6 +6,7 @@ import * as credentials from '../build/ios/credentials';
 import promptForCredentials from '../build/ios/credentials/prompt/promptForCredentials';
 import log from '../../log';
 import prompt from '../../prompt';
+import { tagForUpdate } from './tagger';
 
 // XXX: workaround for https://github.com/babel/babel/issues/6262
 export default selectDistributionCert;
@@ -28,6 +29,9 @@ async function selectDistributionCert(context, options = {}) {
   } else if (distributionCert === 'UPLOAD') {
     distributionCert = (await promptForCredentials(context, ['distributionCert']))[0]
       .distributionCert;
+
+    // tag for updating to Expo servers
+    tagForUpdate(distributionCert);
   }
   return distributionCert;
 }
@@ -75,7 +79,12 @@ async function chooseUnrevokedDistributionCert(context) {
 async function generateDistributionCert(context) {
   const manager = appleApi.createManagers(context).distributionCert;
   try {
-    return await manager.create({});
+    const distributionCert = await manager.create({});
+
+    // tag for updating to Expo servers
+    tagForUpdate(distributionCert);
+
+    return distributionCert;
   } catch (e) {
     if (e.code === 'APPLE_DIST_CERTS_TOO_MANY_GENERATED_ERROR') {
       const certificates = await manager.list();

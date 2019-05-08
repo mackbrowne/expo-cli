@@ -11,6 +11,7 @@ import generateBundleIdentifier from './generateBundleIdentifier';
 import createClientBuildRequest from './createClientBuildRequest';
 import log from '../../log';
 import prompt from '../../prompt';
+import { Updater } from './tagger';
 
 export default program => {
   program
@@ -36,6 +37,12 @@ export default program => {
 
       const distributionCert = await selectDistributionCert(context);
       const pushKey = await selectPushKey(context);
+
+      // if user is logged in, then we should update
+      if (user) {
+        const updateCredentials = () => {};
+        const CredentialUpdater = new Updater(async () => {});
+      }
 
       let email;
       if (user) {
